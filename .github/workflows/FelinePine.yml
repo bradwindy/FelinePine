@@ -15,12 +15,6 @@ jobs:
     strategy:
       matrix:
         container:
-          - swift:5.8.1-jammy
-          - swift:5.8.1-focal
-          - swift:5.9-jammy
-          - swift:5.9-focal
-          - swift:5.10.1-jammy
-          - swift:5.10.1-focal
           - swift:6.0.3-jammy
           - swift:6.0.3-focal
     container:

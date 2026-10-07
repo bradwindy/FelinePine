@@ -42,14 +42,14 @@ Type-wide **cat**egorized **log**ging.
 
 **Apple Platforms**
 
-- Xcode 14.3.1 or later
-- Swift 5.8 or later
-- macOS 12 or later deployment targets
+- Xcode 16 or later
+- Swift 6.0 or later (the package builds in Swift 5 or Swift 6 language mode)
+- Deployment targets: iOS 17, Mac Catalyst 17, macOS 14, tvOS 17, visionOS 1, watchOS 10
 
 **Linux**
 
 - Ubuntu 18.04 or later
-- Swift 5.8 or later
+- Swift 6.0 or later
 
 ## Installation
 

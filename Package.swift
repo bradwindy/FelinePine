@@ -1,11 +1,26 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 6.0
 // swiftlint:disable explicit_acl explicit_top_level_acl
 
 import PackageDescription
 
+// Only upcoming features that Swift 6 language mode does not already enable.
+// Consumers that build this package in Swift 5 mode (for example Tuist's
+// SWIFT_VERSION 5.0 override) still compile it with the same import rules.
+let swiftSettings: [SwiftSetting] = [
+  SwiftSetting.enableUpcomingFeature("ExistentialAny"),
+  SwiftSetting.enableUpcomingFeature("InternalImportsByDefault")
+]
+
 let package = Package(
   name: "FelinePine",
-  platforms: [.iOS(.v14), .watchOS(.v7), .macOS(.v11)],
+  platforms: [
+    .iOS(.v17),
+    .macCatalyst(.v17),
+    .macOS(.v14),
+    .tvOS(.v17),
+    .visionOS(.v1),
+    .watchOS(.v10)
+  ],
   products: [
     .library(
       name: "FelinePine",
@@ -15,17 +30,7 @@ let package = Package(
   targets: [
     .target(
       name: "FelinePine",
-      swiftSettings: [
-        SwiftSetting.enableUpcomingFeature("BareSlashRegexLiterals"),
-        SwiftSetting.enableUpcomingFeature("ConciseMagicFile"),
-        SwiftSetting.enableUpcomingFeature("ExistentialAny"),
-        SwiftSetting.enableUpcomingFeature("ForwardTrailingClosures"),
-        SwiftSetting.enableUpcomingFeature("ImplicitOpenExistentials"),
-        SwiftSetting.enableUpcomingFeature("StrictConcurrency"),
-        SwiftSetting.enableUpcomingFeature("DisableOutwardActorInference"),
-        SwiftSetting.enableExperimentalFeature("StrictConcurrency"),
-        SwiftSetting.enableExperimentalFeature("AccessLevelOnImport")
-      ]
+      swiftSettings: swiftSettings
     ),
     .testTarget(
       name: "FelinePineTests",
