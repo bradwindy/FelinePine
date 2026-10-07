@@ -29,9 +29,7 @@
 
 import Foundation
 
-#if canImport(os)
-  public import os
-#endif
+public import os
 
 // swiftlint:disable strict_fileprivate
 private class LoggingSystemRepository: @unchecked Sendable {
@@ -44,26 +42,24 @@ private class LoggingSystemRepository: @unchecked Sendable {
     self.items = items
   }
 
-  #if canImport(os)
-    fileprivate func loggingSystem<LoggingSystemType: LoggingSystem>(
-      for system: LoggingSystemType.Type,
-      using value: @autoclosure () -> [LoggingSystemType.Category: Logger]
-    ) -> [LoggingSystemType.Category: Logger] {
-      let anyItem = lock.withLock {
-        items[system.identifier]
-      }
-      if let item = anyItem as? [LoggingSystemType.Category: Logger] {
-        return item
-      } else {
-        assert(anyItem == nil)
-        return lock.withLock {
-          let value = value()
-          items[system.identifier] = value
-          return value
-        }
+  fileprivate func loggingSystem<LoggingSystemType: LoggingSystem>(
+    for system: LoggingSystemType.Type,
+    using value: @autoclosure () -> [LoggingSystemType.Category: Logger]
+  ) -> [LoggingSystemType.Category: Logger] {
+    let anyItem = lock.withLock {
+      items[system.identifier]
+    }
+    if let item = anyItem as? [LoggingSystemType.Category: Logger] {
+      return item
+    } else {
+      assert(anyItem == nil)
+      return lock.withLock {
+        let value = value()
+        items[system.identifier] = value
+        return value
       }
     }
-  #endif
+  }
 }
 
 // swiftlint:enable strict_fileprivate
@@ -76,38 +72,32 @@ extension LoggingSystem {
 
   /// By default, this is `Bundle.main.bundleIdentifier`.
   public static var subsystem: String {
-    #if canImport(os)
-      Bundle.main.bundleIdentifier ?? identifier
-    #else
-      identifier
-    #endif
+    Bundle.main.bundleIdentifier ?? identifier
   }
 }
 
-#if canImport(os)
-  extension LoggingSystem where Category: CaseIterable {
-    private static var loggers: [Category: Logger] {
-      LoggingSystemRepository.shared.loggingSystem(
-        for: Self.self,
-        using: defaultLoggers()
-      )
-    }
-
-    /// If ``Category`` implements `CaseIterable`, ``LoggingSystem`` can automatically
-    /// iterate over the cases and automatically create the ``Logger`` objects needed.
-    public static func logger(forCategory category: Category) -> Logger {
-      guard let logger = loggers[category] else {
-        preconditionFailure("missing logger")
-      }
-      return logger
-    }
-
-    private static func defaultLoggers() -> [Category: Logger] {
-      .init(
-        uniqueKeysWithValues: Category.allCases.map {
-          ($0, Logger(subsystem: Self.subsystem, category: $0))
-        }
-      )
-    }
+extension LoggingSystem where Category: CaseIterable {
+  private static var loggers: [Category: Logger] {
+    LoggingSystemRepository.shared.loggingSystem(
+      for: Self.self,
+      using: defaultLoggers()
+    )
   }
-#endif
+
+  /// If ``Category`` implements `CaseIterable`, ``LoggingSystem`` can automatically
+  /// iterate over the cases and automatically create the ``Logger`` objects needed.
+  public static func logger(forCategory category: Category) -> Logger {
+    guard let logger = loggers[category] else {
+      preconditionFailure("missing logger")
+    }
+    return logger
+  }
+
+  private static func defaultLoggers() -> [Category: Logger] {
+    .init(
+      uniqueKeysWithValues: Category.allCases.map {
+        ($0, Logger(subsystem: Self.subsystem, category: $0))
+      }
+    )
+  }
+}

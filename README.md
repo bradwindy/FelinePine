@@ -5,7 +5,7 @@
 
 Type-wide **cat**egorized **log**ging.
 
-[![SwiftPM](https://img.shields.io/badge/SPM-Linux%20%7C%20iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS-success?logo=swift)](https://swift.org)
+[![SwiftPM](https://img.shields.io/badge/SPM-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS%20%7C%20visionOS-success?logo=swift)](https://swift.org)
 [![Twitter](https://img.shields.io/badge/twitter-@brightdigit-blue.svg?style=flat)](http://twitter.com/brightdigit)
 ![GitHub](https://img.shields.io/github/license/brightdigit/FelinePine)
 ![GitHub issues](https://img.shields.io/github/issues/brightdigit/FelinePine)
@@ -40,16 +40,11 @@ Type-wide **cat**egorized **log**ging.
 
 ## Requirements 
 
-**Apple Platforms**
+**Apple platforms only** (FelinePine logs through `os.Logger`)
 
 - Xcode 16 or later
 - Swift 6.0 or later (the package builds in Swift 5 or Swift 6 language mode)
 - Deployment targets: iOS 17, Mac Catalyst 17, macOS 14, tvOS 17, visionOS 1, watchOS 10
-
-**Linux**
-
-- Ubuntu 18.04 or later
-- Swift 6.0 or later
 
 ## Installation
 

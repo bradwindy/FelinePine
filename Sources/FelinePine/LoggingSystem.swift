@@ -27,9 +27,11 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#if canImport(os)
-  public import os
+#if !canImport(os)
+  #error("FelinePine requires an Apple platform: it logs through os.Logger.")
 #endif
+
+public import os
 
 /// Defines the logging categories for your application.
 public protocol LoggingSystem: Sendable {
@@ -42,8 +44,7 @@ public protocol LoggingSystem: Sendable {
   /// Subsystem to use for each ``Logger``.
   /// By default, this is `Bundle.main.bundleIdentifier`.
   static var subsystem: String { get }
-  #if canImport(os)
-    /// Fetches the correct logger based on the category.
-    static func logger(forCategory category: Category) -> Logger
-  #endif
+
+  /// Fetches the correct logger based on the category.
+  static func logger(forCategory category: Category) -> Logger
 }

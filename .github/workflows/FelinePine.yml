@@ -5,54 +5,6 @@ on:
       - '*WIP'
 
 jobs:
-  build-ubuntu:
-    name: Build on Ubuntu
-    env:
-      PACKAGE_NAME: FelinePine
-      SWIFT_VER: ${{ matrix.swift-version }}
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'ci skip')"
-    strategy:
-      matrix:
-        container:
-          - swift:6.0.3-jammy
-          - swift:6.0.3-focal
-    container:
-      image: ${{ matrix.container }}
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Cache swift package modules
-        id: cache-spm-linux
-        uses: actions/cache@v4
-        env:
-          cache-name: SPM
-        with:
-          path: .build
-          key: ${{ env.cache-name }}-docker-${{ matrix.container }}-${{ hashFiles('Package.resolved') }}
-          restore-keys: |
-            ${{ env.cache-name }}-docker-${{ matrix.container }}-
-            ${{ env.cache-name }}-docker-
-
-      - name: Build
-        run: swift build
-
-      - name: Run tests
-        run: swift test --enable-test-discovery --enable-code-coverage
-
-      - uses: sersoft-gmbh/swift-coverage-action@v4
-        id: coverage-files
-        with:          
-          fail-on-empty-output: true
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4       
-        with:
-          fail_ci_if_error: true
-          flags: ${{ matrix.container }}
-          verbose: true        
-          token: ${{ secrets.CODECOV_TOKEN }}  
-          files: ${{ join(fromJSON(steps.coverage-files.outputs.files), ',') }} 
   build-macos:
     name: Build on macOS
     env:

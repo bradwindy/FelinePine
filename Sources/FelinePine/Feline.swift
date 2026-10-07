@@ -27,9 +27,7 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#if canImport(os)
-  public import os
-#endif
+public import os
 
 /// Defines the ``LoggingSystem`` to use as well as the category.
 public protocol Feline {
@@ -42,11 +40,9 @@ public protocol Feline {
   }
 }
 
-#if canImport(os)
-  extension Feline where Self: Pine {
-    /// Use the ``loggingCategory`` to define the shared logger for type.
-    public static var logger: Logger {
-      LoggingSystemType.logger(forCategory: loggingCategory)
-    }
+extension Feline where Self: Pine {
+  /// Use the ``loggingCategory`` to define the shared logger for type.
+  public static var logger: Logger {
+    LoggingSystemType.logger(forCategory: loggingCategory)
   }
-#endif
+}

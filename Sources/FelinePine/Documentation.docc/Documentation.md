@@ -8,16 +8,11 @@
 
 ### Requirements 
 
-**Apple Platforms**
+**Apple platforms only** (FelinePine logs through `os.Logger`)
 
 - Xcode 16 or later
 - Swift 6.0 or later (the package builds in Swift 5 or Swift 6 language mode)
 - Deployment targets: iOS 17, Mac Catalyst 17, macOS 14, tvOS 17, visionOS 1, watchOS 10
-
-**Linux**
-
-- Ubuntu 18.04 or later
-- Swift 6.0 or later
 
 ### Installation
 

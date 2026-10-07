@@ -28,13 +28,8 @@
 //
 
 // swiftlint:disable missing_docs
-#if canImport(os)
-  @_documentation(visibility: internal)
-  public typealias FelinePineProtocol = Feline & Pine
-#else
-  @_documentation(visibility: internal)
-  public typealias FelinePineProtocol = Feline
-#endif
+@_documentation(visibility: internal)
+public typealias FelinePineProtocol = Feline & Pine
 // swiftlint:enable missing_docs
 
 /// Loggable type for a ``LoggingSystem``.

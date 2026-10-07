@@ -44,13 +44,9 @@ internal final class LoggingSystemTests: XCTestCase {
     }
   }
 
-  internal func testLogger() throws {
+  internal func testLogger() {
     for category in MockSystem.Category.allCases {
-      #if canImport(os)
-        _ = MockSystem.logger(forCategory: category)
-      #else
-        throw XCTSkip("OSLog not available")
-      #endif
+      _ = MockSystem.logger(forCategory: category)
     }
   }
 }

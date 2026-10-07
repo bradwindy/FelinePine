@@ -27,15 +27,13 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#if canImport(os)
-  internal import os
+internal import os
 
-  extension Logger {
-    internal init<Category: RawRepresentable>(
-      subsystem: String,
-      category: Category
-    ) where Category.RawValue == String {
-      self.init(subsystem: subsystem, category: category.rawValue)
-    }
+extension Logger {
+  internal init<Category: RawRepresentable>(
+    subsystem: String,
+    category: Category
+  ) where Category.RawValue == String {
+    self.init(subsystem: subsystem, category: category.rawValue)
   }
-#endif
+}
