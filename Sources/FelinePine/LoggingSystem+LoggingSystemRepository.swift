@@ -28,49 +28,64 @@
 //
 
 import Foundation
-
 public import os
 
-// swiftlint:disable strict_fileprivate
-private class LoggingSystemRepository: @unchecked Sendable {
-  fileprivate static let shared = LoggingSystemRepository()
+/// Process-wide cache of each ``LoggingSystem``'s loggers.
+///
+/// Entries are keyed by the system's type (`ObjectIdentifier` of its metatype),
+/// never by ``LoggingSystem/identifier``: that is a user-overridable string, so two
+/// systems could share it.
+///
+/// The builder runs outside the lock. It calls conformer code (`subsystem`,
+/// `allCases`, `Logger.init`) which may itself log, so the lock is never held while
+/// it runs and does not need to be recursive. If two threads miss at once both may
+/// build, but the first value stored wins and every caller gets that one.
+internal final class LoggingSystemRepository: @unchecked Sendable {
+  internal static let shared = LoggingSystemRepository()
 
-  private let lock = NSRecursiveLock()
-  private var items = [String: Any]()
+  private let lock = NSLock()
+  private var items = [ObjectIdentifier: Any]()
 
-  private init(items: [String: Any] = [String: Any]()) {
-    self.items = items
+  internal init() {}
+
+  /// Returns the cached value for `system`, building and storing it on first use.
+  internal func value<Value>(
+    for system: Any.Type,
+    build: () -> Value
+  ) -> Value {
+    let key = ObjectIdentifier(system)
+    if let cached = lock.withLock({ items[key] }) as? Value {
+      return cached
+    }
+    let built = build()
+    return lock.withLock {
+      if let existing = items[key] as? Value {
+        return existing
+      }
+      items[key] = built
+      return built
+    }
   }
 
-  fileprivate func loggingSystem<LoggingSystemType: LoggingSystem>(
-    for system: LoggingSystemType.Type,
-    using value: @autoclosure () -> [LoggingSystemType.Category: Logger]
-  ) -> [LoggingSystemType.Category: Logger] {
-    let anyItem = lock.withLock {
-      items[system.identifier]
-    }
-    if let item = anyItem as? [LoggingSystemType.Category: Logger] {
-      return item
-    } else {
-      assert(anyItem == nil)
-      return lock.withLock {
-        let value = value()
-        items[system.identifier] = value
-        return value
-      }
-    }
+  /// The value currently cached for `system`, if any. Test seam.
+  internal func cachedValue<Value>(
+    for system: Any.Type,
+    as _: Value.Type = Value.self
+  ) -> Value? {
+    lock.withLock { items[ObjectIdentifier(system)] } as? Value
   }
 }
 
-// swiftlint:enable strict_fileprivate
-
 extension LoggingSystem {
-  // swiftlint:disable:next missing_docs
+  /// A readable name for the system, by default its fully qualified type name.
+  ///
+  /// Used only as the ``subsystem`` fallback when the process has no bundle
+  /// identifier. It need not be unique: loggers are cached per type.
   public static var identifier: String {
     String(reflecting: Self.self)
   }
 
-  /// By default, this is `Bundle.main.bundleIdentifier`.
+  /// By default, this is `Bundle.main.bundleIdentifier`, falling back to ``identifier``.
   public static var subsystem: String {
     Bundle.main.bundleIdentifier ?? identifier
   }
@@ -78,26 +93,35 @@ extension LoggingSystem {
 
 extension LoggingSystem where Category: CaseIterable {
   private static var loggers: [Category: Logger] {
-    LoggingSystemRepository.shared.loggingSystem(
-      for: Self.self,
-      using: defaultLoggers()
-    )
+    LoggingSystemRepository.shared.value(for: Self.self) {
+      Self.makeLoggers { subsystem, category in
+        Logger(subsystem: subsystem, category: category)
+      }
+    }
   }
 
   /// If ``Category`` implements `CaseIterable`, ``LoggingSystem`` can automatically
   /// iterate over the cases and automatically create the ``Logger`` objects needed.
+  ///
+  /// The loggers are built once per system and cached. A category missing from
+  /// `allCases` gets a logger built on demand rather than trapping.
+  ///
+  /// Each call takes a short lock. On a hot path, cache the logger in the
+  /// concrete type: `private static let log = Self.logger`.
   public static func logger(forCategory category: Category) -> Logger {
-    guard let logger = loggers[category] else {
-      preconditionFailure("missing logger")
-    }
-    return logger
+    loggers[category] ?? Logger(subsystem: Self.subsystem, category: category)
   }
 
-  private static func defaultLoggers() -> [Category: Logger] {
-    .init(
-      uniqueKeysWithValues: Category.allCases.map {
-        ($0, Logger(subsystem: Self.subsystem, category: $0))
-      }
+  /// Builds one value per case of `allCases` from the system's subsystem and the
+  /// case's raw value. Duplicate cases keep the first value. Test seam: `Logger`
+  /// exposes neither its subsystem nor its category.
+  internal static func makeLoggers<Value>(
+    _ make: (_ subsystem: String, _ category: String) -> Value
+  ) -> [Category: Value] {
+    let subsystem = Self.subsystem
+    return Dictionary(
+      Category.allCases.map { ($0, make(subsystem, $0.rawValue)) },
+      uniquingKeysWith: { first, _ in first }
     )
   }
 }
