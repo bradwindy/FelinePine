@@ -21,6 +21,15 @@ jobs:
         # The oldest Swift 6.2 toolchain and the newest stable Xcode on the image.
         xcode: ["26.0", "latest-stable"]
         type: [spm, ios, watchos, visionos]
+        # The runner image ships simulator runtimes only for its newest Xcode,
+        # so the oldest Xcode builds and tests the package with SwiftPM only.
+        exclude:
+          - xcode: "26.0"
+            type: ios
+          - xcode: "26.0"
+            type: watchos
+          - xcode: "26.0"
+            type: visionos
 
     steps:
       - uses: actions/checkout@v4
