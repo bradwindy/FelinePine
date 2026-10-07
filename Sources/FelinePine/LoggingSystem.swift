@@ -47,6 +47,10 @@ public protocol LoggingSystem: Sendable {
 
   /// Subsystem to use for each ``Logger``.
   /// By default, this is `Bundle.main.bundleIdentifier`.
+  ///
+  /// It is read while the system's loggers are built, so it must not log
+  /// through this same system (that recurses without end). Logging through
+  /// another ``LoggingSystem`` is fine.
   static var subsystem: String { get }
 
   /// Fetches the correct logger based on the category.

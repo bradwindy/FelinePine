@@ -35,7 +35,8 @@ public import os
   /// A logger is used from every isolation domain, so a conformance may never be
   /// actor-isolated (the protocol refines `SendableMetatype`). In a module with
   /// default `MainActor` isolation, declare the witness
-  /// `nonisolated static let loggingCategory`, or mark the type `nonisolated`.
+  /// `nonisolated static let loggingCategory`, or mark the type `nonisolated`,
+  /// and declare the system's `Category` enum `nonisolated` as well.
   /// Actor conformers need nothing extra.
   public protocol Feline: SendableMetatype {
     /// Defined ``LoggingSystemType`` to use for pulling the correct category.

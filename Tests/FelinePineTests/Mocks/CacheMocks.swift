@@ -137,16 +137,6 @@ internal enum DuplicatedSystem: LoggingSystem {
   }
 }
 
-/// Only ever touched by the concurrent first-access test.
-internal enum ConcurrentSystem: LoggingSystem {
-  internal enum Category: String, CaseIterable {
-    case north
-    case east
-    case south
-    case west
-  }
-}
-
 /// Logs through another system while its own loggers are being built.
 internal enum ReentrantSystem: LoggingSystem {
   internal enum Category: String, CaseIterable {

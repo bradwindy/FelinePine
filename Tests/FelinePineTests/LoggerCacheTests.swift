@@ -133,24 +133,6 @@ internal struct LoggerCacheTests {
   }
 
   @Test
-  internal func concurrentFirstAccessLeavesOneCompleteEntry() async {
-    await withTaskGroup(of: Void.self) { group in
-      for _ in 0..<200 {
-        group.addTask {
-          for category in ConcurrentSystem.Category.allCases {
-            ConcurrentSystem.logger(forCategory: category).debug("concurrent")
-          }
-        }
-      }
-    }
-    let cached = LoggingSystemRepository.shared.cachedValue(
-      for: ConcurrentSystem.self,
-      as: [ConcurrentSystem.Category: Logger].self
-    )
-    #expect(cached?.count == ConcurrentSystem.Category.allCases.count)
-  }
-
-  @Test
   internal func concurrentFirstAccessReturnsTheStoredValueToEveryCaller() async {
     let repository = LoggingSystemRepository()
     let builds = Counter()

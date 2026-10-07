@@ -36,8 +36,9 @@ public typealias FelinePineProtocol = Feline & Pine
 ///
 /// In a module with default `MainActor` isolation, declare
 /// `nonisolated static let loggingCategory` (or mark the type `nonisolated`), and
-/// make the system's `Category` enum `nonisolated` too, so the conformance is not
-/// inferred as `MainActor`-isolated and `Self.logger` works off the main actor.
+/// mark the ``LoggingSystem`` enum and its nested `Category` enum `nonisolated` too
+/// (a nested type does not inherit `nonisolated`), so no conformance is inferred
+/// as `MainActor`-isolated and `Self.logger` works off the main actor.
 public protocol Loggable<LoggingSystemType>: FelinePineProtocol {
   associatedtype LoggingSystemType: LoggingSystem
 }

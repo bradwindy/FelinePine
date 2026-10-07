@@ -135,8 +135,21 @@ private static let log = Self.logger
 
 On Swift 6.2 and later `Feline` and `Pine` refine `SendableMetatype`, so a
 conformance is never actor-isolated and `Self.logger` works from any isolation
-domain. In a module with default `MainActor` isolation, declare
-`nonisolated static let loggingCategory` (or mark the type `nonisolated`).
+domain. In a module with default `MainActor` isolation:
+
+- declare `nonisolated static let loggingCategory` (or mark the type `nonisolated`);
+- mark the `LoggingSystem` enum and its `Category` enum `nonisolated`. A nested
+  type does not inherit `nonisolated` from the enclosing one, so mark both.
+  Otherwise `Category`'s `Hashable` and `RawRepresentable` conformances are
+  inferred as `MainActor`-isolated and cannot satisfy `Category: Hashable & Sendable`.
+
+```swift
+nonisolated public enum AppLogging: LoggingSystem {
+  nonisolated public enum Category: String, CaseIterable, Sendable {
+    case app
+  }
+}
+```
 
 ## Further Documentation
 

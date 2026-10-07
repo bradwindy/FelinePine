@@ -37,9 +37,14 @@ public import os
 /// systems could share it.
 ///
 /// The builder runs outside the lock. It calls conformer code (`subsystem`,
-/// `allCases`, `Logger.init`) which may itself log, so the lock is never held while
-/// it runs and does not need to be recursive. If two threads miss at once both may
-/// build, but the first value stored wins and every caller gets that one.
+/// `allCases`, `Logger.init`) which may log through another ``LoggingSystem``, so
+/// the lock is never held while it runs and does not need to be recursive. If two
+/// threads miss at once both may build, but the first value stored wins and every
+/// caller gets that one.
+///
+/// A system's `subsystem` and `allCases` must not log through that same system:
+/// its loggers are not cached until the builder returns, so the lookup misses and
+/// builds again, recursing until the stack overflows.
 internal final class LoggingSystemRepository: @unchecked Sendable {
   internal static let shared = LoggingSystemRepository()
 
