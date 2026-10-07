@@ -29,16 +29,35 @@
 
 public import os
 
-/// Defines the ``LoggingSystem`` to use as well as the category.
-public protocol Feline {
-  /// Defined ``LoggingSystemType`` to use for pulling the correct category.
-  associatedtype LoggingSystemType: LoggingSystem
+#if compiler(>=6.2)
+  /// Defines the ``LoggingSystem`` to use as well as the category.
+  ///
+  /// A logger is used from every isolation domain, so a conformance may never be
+  /// actor-isolated (the protocol refines `SendableMetatype`). In a module with
+  /// default `MainActor` isolation, declare the witness
+  /// `nonisolated static let loggingCategory`, or mark the type `nonisolated`.
+  /// Actor conformers need nothing extra.
+  public protocol Feline: SendableMetatype {
+    /// Defined ``LoggingSystemType`` to use for pulling the correct category.
+    associatedtype LoggingSystemType: LoggingSystem
 
-  /// Specific category to use for logging.
-  static var loggingCategory: LoggingSystemType.Category {
-    get
+    /// Specific category to use for logging.
+    static var loggingCategory: LoggingSystemType.Category {
+      get
+    }
   }
-}
+#else
+  /// Defines the ``LoggingSystem`` to use as well as the category.
+  public protocol Feline {
+    /// Defined ``LoggingSystemType`` to use for pulling the correct category.
+    associatedtype LoggingSystemType: LoggingSystem
+
+    /// Specific category to use for logging.
+    static var loggingCategory: LoggingSystemType.Category {
+      get
+    }
+  }
+#endif
 
 extension Feline where Self: Pine {
   /// Use the ``loggingCategory`` to define the shared logger for type.

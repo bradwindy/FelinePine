@@ -29,12 +29,26 @@
 
 public import os
 
-/// Defines a shared logger for the type.
-///
-/// Provides a shared ``Logger`` to use in this type.
-public protocol Pine {
-  /// Shared logger for Type.
-  static var logger: Logger {
-    get
+#if compiler(>=6.2)
+  /// Defines a shared logger for the type.
+  ///
+  /// Provides a shared ``Logger`` to use in this type. The conformance can never
+  /// be actor-isolated (the protocol refines `SendableMetatype`), so the logger
+  /// is usable from any isolation domain.
+  public protocol Pine: SendableMetatype {
+    /// Shared logger for Type.
+    static var logger: Logger {
+      get
+    }
   }
-}
+#else
+  /// Defines a shared logger for the type.
+  ///
+  /// Provides a shared ``Logger`` to use in this type.
+  public protocol Pine {
+    /// Shared logger for Type.
+    static var logger: Logger {
+      get
+    }
+  }
+#endif

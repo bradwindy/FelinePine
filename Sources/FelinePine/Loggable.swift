@@ -33,6 +33,11 @@ public typealias FelinePineProtocol = Feline & Pine
 // swiftlint:enable missing_docs
 
 /// Loggable type for a ``LoggingSystem``.
+///
+/// In a module with default `MainActor` isolation, declare
+/// `nonisolated static let loggingCategory` (or mark the type `nonisolated`), and
+/// make the system's `Category` enum `nonisolated` too, so the conformance is not
+/// inferred as `MainActor`-isolated and `Self.logger` works off the main actor.
 public protocol Loggable<LoggingSystemType>: FelinePineProtocol {
   associatedtype LoggingSystemType: LoggingSystem
 }
