@@ -28,10 +28,44 @@
 //
 
 @testable import FelinePine
-import XCTest
+import os
+import Testing
 
-internal final class FelinePineTests: XCTestCase {
-  internal func testLogger() {
-    _ = MockType.logger
+@Suite
+internal struct FelinePineTests {
+  private static func category<T: Loggable<MockSystem>>(
+    of _: T.Type
+  ) -> MockSystem.Category {
+    T.loggingCategory
+  }
+
+  private static func logger<T: Loggable<MockSystem>>(of _: T.Type) -> Logger {
+    T.logger
+  }
+
+  private static func category(of value: some Loggable<MockSystem>) -> MockSystem.Category {
+    type(of: value).loggingCategory
+  }
+
+  @Test
+  internal func felinePineProtocolConformerExposesLogger() {
+    let logger: Logger = MockType.logger
+    logger.debug("FelinePineProtocol conformer")
+    #expect(MockType.loggingCategory == .alpha)
+  }
+
+  @Test
+  internal func loggableConformerExposesLogger() {
+    let logger: Logger = MockLoggable.logger
+    logger.debug("Loggable conformer")
+    #expect(MockLoggable.loggingCategory == .beta)
+  }
+
+  @Test
+  internal func loggableWorksThroughPrimaryAssociatedType() {
+    let logger = Self.logger(of: MockLoggable.self)
+    logger.debug("Loggable<MockSystem> generic")
+    #expect(Self.category(of: MockLoggable.self) == .beta)
+    #expect(Self.category(of: MockLoggable()) == .beta)
   }
 }

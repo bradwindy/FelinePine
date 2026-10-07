@@ -28,12 +28,27 @@
 //
 
 @testable import FelinePine
-import XCTest
 
 internal struct MockSystem: LoggingSystem {
   internal enum Category: String, CaseIterable {
     case alpha
     case beta
     case gamma
+  }
+}
+
+/// Overrides both `identifier` and `subsystem` with literals.
+internal enum OverriddenSystem: LoggingSystem {
+  internal enum Category: String, CaseIterable {
+    case first
+    case second
+  }
+
+  internal static var identifier: String {
+    "custom-identifier"
+  }
+
+  internal static var subsystem: String {
+    "nz.test.override"
   }
 }

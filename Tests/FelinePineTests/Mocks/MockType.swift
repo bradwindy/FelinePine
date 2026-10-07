@@ -28,10 +28,16 @@
 //
 
 @testable import FelinePine
-import XCTest
 
 internal struct MockType: FelinePineProtocol {
   internal typealias LoggingSystemType = MockSystem
 
   internal static let loggingCategory: MockSystem.Category = .alpha
+}
+
+/// Conforms through the public `Loggable` protocol rather than `FelinePineProtocol`.
+internal struct MockLoggable: Loggable {
+  internal typealias LoggingSystemType = MockSystem
+
+  internal static let loggingCategory: MockSystem.Category = .beta
 }

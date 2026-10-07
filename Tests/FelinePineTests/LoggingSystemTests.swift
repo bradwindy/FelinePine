@@ -28,25 +28,30 @@
 //
 
 @testable import FelinePine
-import XCTest
+import Foundation
+import Testing
 
-internal final class LoggingSystemTests: XCTestCase {
-  internal func testIdentifier() {
-    XCTAssertEqual(MockSystem.identifier, String(reflecting: MockSystem.self))
+@Suite
+internal struct LoggingSystemTests {
+  @Test
+  internal func defaultIdentifierIsTheQualifiedTypeName() {
+    #expect(MockSystem.identifier == "FelinePineTests.MockSystem")
   }
 
-  internal func testSubsystem() {
-    let subsystem = MockSystem.subsystem
-    if let bundleIdentifier = Bundle.main.bundleIdentifier {
-      XCTAssertEqual(subsystem, bundleIdentifier)
-    } else {
-      XCTAssertEqual(subsystem, MockSystem.identifier)
-    }
+  @Test
+  internal func defaultSubsystemFallsBackToIdentifier() {
+    let expected = Bundle.main.bundleIdentifier ?? "FelinePineTests.MockSystem"
+    #expect(MockSystem.subsystem == expected)
   }
 
-  internal func testLogger() {
-    for category in MockSystem.Category.allCases {
-      _ = MockSystem.logger(forCategory: category)
-    }
+  @Test
+  internal func overriddenIdentifierAndSubsystemAreUsed() {
+    #expect(OverriddenSystem.identifier == "custom-identifier")
+    #expect(OverriddenSystem.subsystem == "nz.test.override")
+  }
+
+  @Test(arguments: MockSystem.Category.allCases)
+  internal func loggerForEveryCategory(category: MockSystem.Category) {
+    MockSystem.logger(forCategory: category).debug("category \(category.rawValue)")
   }
 }
