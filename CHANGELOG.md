@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (trig-fixes fork)
+## 2.0.0 (2026-10-07, bradwindy fork)
 
 ### Source-breaking
 
