@@ -1,5 +1,5 @@
 //
-//  LoggingSystem.swift
+//  PublicSystem.swift
 //  FelinePine
 //
 //  Created by Leo Dion.
@@ -27,28 +27,19 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#if !canImport(os)
-  #error("FelinePine requires an Apple platform: it logs through os.Logger.")
-#endif
+@testable import FelinePine
 
-public import os
+/// A `public` system: its `Category` is not implicitly `Sendable`, so it has to say so.
+public enum PublicSystem: LoggingSystem {
+  public enum Category: String, CaseIterable, Sendable {
+    case data
+    case view
+  }
+}
 
-/// Defines the logging categories for your application.
-public protocol LoggingSystem: Sendable {
-  /// Logging categories available to types in the application.
-  ///
-  /// Categories are cached in a process-wide store and handed to every thread
-  /// and actor, so they must be `Sendable`. A `public` enum is never implicitly
-  /// `Sendable`, so declare it: `public enum Category: String, CaseIterable, Sendable`.
-  associatedtype Category: Hashable & RawRepresentable & Sendable
-    where Category.RawValue == String
+/// The natural Swift 6 conformance: a stored `static let` of a public category.
+public struct PublicLoggable: Loggable {
+  public typealias LoggingSystemType = PublicSystem
 
-  static var identifier: String { get }
-
-  /// Subsystem to use for each ``Logger``.
-  /// By default, this is `Bundle.main.bundleIdentifier`.
-  static var subsystem: String { get }
-
-  /// Fetches the correct logger based on the category.
-  static func logger(forCategory category: Category) -> Logger
+  public static let loggingCategory: PublicSystem.Category = .data
 }

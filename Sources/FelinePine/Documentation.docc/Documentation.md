@@ -32,7 +32,7 @@ Create a `LoggingSystem` which defines the categories:
 
 ```swift
 public enum BushelLogging: LoggingSystem {
-  public enum Category: String, CaseIterable {
+  public enum Category: String, CaseIterable, Sendable {
     case library
     case data
     case view
@@ -44,7 +44,8 @@ public enum BushelLogging: LoggingSystem {
 }
 ```
 
-The `Category` enum inside must have a `RawType` of `String`.
+The `Category` enum inside must have a `RawType` of `String` and be `Sendable`
+(a `public` enum is never implicitly `Sendable`, so declare it).
 Additionally if you wish to take advantage of automatically created `Logger` object, 
 then you should also have to implment `CaseIterable`.
 

@@ -1,5 +1,5 @@
 //
-//  LoggingSystem.swift
+//  CategorySendableTests.swift
 //  FelinePine
 //
 //  Created by Leo Dion.
@@ -27,28 +27,32 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#if !canImport(os)
-  #error("FelinePine requires an Apple platform: it logs through os.Logger.")
-#endif
+@testable import FelinePine
+import Testing
 
-public import os
+@Suite
+internal struct CategorySendableTests {
+  private static func requireSendable<T: Sendable>(_: T.Type) -> Bool {
+    true
+  }
 
-/// Defines the logging categories for your application.
-public protocol LoggingSystem: Sendable {
-  /// Logging categories available to types in the application.
-  ///
-  /// Categories are cached in a process-wide store and handed to every thread
-  /// and actor, so they must be `Sendable`. A `public` enum is never implicitly
-  /// `Sendable`, so declare it: `public enum Category: String, CaseIterable, Sendable`.
-  associatedtype Category: Hashable & RawRepresentable & Sendable
-    where Category.RawValue == String
+  /// Compiles only if the protocol itself guarantees `Category: Sendable`.
+  private static func categoryIsSendable<System: LoggingSystem>(_: System.Type) -> Bool {
+    requireSendable(System.Category.self)
+  }
 
-  static var identifier: String { get }
+  @Test
+  internal func everySystemCategoryIsSendable() {
+    #expect(Self.categoryIsSendable(MockSystem.self))
+    #expect(Self.categoryIsSendable(PublicSystem.self))
+  }
 
-  /// Subsystem to use for each ``Logger``.
-  /// By default, this is `Bundle.main.bundleIdentifier`.
-  static var subsystem: String { get }
-
-  /// Fetches the correct logger based on the category.
-  static func logger(forCategory category: Category) -> Logger
+  @Test
+  internal func publicCategoryWorksAsStaticLet() async {
+    #expect(PublicLoggable.loggingCategory == .data)
+    let category = PublicLoggable.loggingCategory
+    let roundTripped = await Task.detached { category }.value
+    #expect(roundTripped == .data)
+    PublicLoggable.logger.debug("public static let conformer")
+  }
 }
