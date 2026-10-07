@@ -27,8 +27,6 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
-
 // swiftlint:disable missing_docs
 #if canImport(os)
   @_documentation(visibility: internal)

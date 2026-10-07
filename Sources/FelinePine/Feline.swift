@@ -27,8 +27,6 @@
 //  OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
-
 #if canImport(os)
   public import os
 #endif

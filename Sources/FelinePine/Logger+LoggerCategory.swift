@@ -28,7 +28,7 @@
 //
 
 #if canImport(os)
-  public import os
+  internal import os
 
   extension Logger {
     internal init<Category: RawRepresentable>(
