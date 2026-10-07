@@ -31,6 +31,7 @@ Type-wide **cat**egorized **log**ging.
 * [Usage](#usage)
    * [Getting Started](#getting-started)
    * [Using the Loggable type](#using-the-loggable-type)
+   * [Hot paths and isolation](#hot-paths-and-isolation)
    * [Further Documentation](#further-documentation)
 * [License](#license)
 
@@ -121,6 +122,21 @@ internal struct VirtualMachine: BushelLoggable {
   }
 }
 ```
+
+## Hot paths and isolation
+
+`Self.logger` looks the logger up in a process-wide cache keyed by the
+`LoggingSystem` type, which takes a short lock. On a hot path, store it once in
+the concrete type (a protocol extension cannot hold stored statics):
+
+```swift
+private static let log = Self.logger
+```
+
+On Swift 6.2 and later `Feline` and `Pine` refine `SendableMetatype`, so a
+conformance is never actor-isolated and `Self.logger` works from any isolation
+domain. In a module with default `MainActor` isolation, declare
+`nonisolated static let loggingCategory` (or mark the type `nonisolated`).
 
 ## Further Documentation
 
